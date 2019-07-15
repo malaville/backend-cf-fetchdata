@@ -6,7 +6,7 @@
     "password-hash": "1.2.2"
   },
   "scripts": {
-    "start": "functions-framework --target=mysqlDemo",
-    "start2": "functions-framework --target=helloHttp"
+    "start": "functions-framework --target=mysqlFetchData",
+    "start2": "functions-framework --target=mysqlFetchData"
   }
 }

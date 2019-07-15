@@ -5,7 +5,7 @@ var passwordHash = require("password-hash");
  */
 const dbUser = "btc-user-reader";
 const dbPassword = "btc-user-reader";
-const dbName = process.env.SQL_NAME || "clement_le_bg";
+const dbName = process.env.SQL_NAME || "bitcoin-data";
 
 const mysqlConfig = {
   connectionLimit: 1,
@@ -19,7 +19,7 @@ const mysqlConfig = {
 // and handle dropped or expired connections automatically.
 let mysqlPool;
 
-exports.mysqlDemo = (req, res) => {
+exports.mysqlFetchData = (req, res) => {
   console.log("hello");
   // Initialize the pool lazily, in case SQL access isn't needed for this
   // GCF instanc e. Doing so minimizes the number of active SQL connections,
@@ -29,28 +29,37 @@ exports.mysqlDemo = (req, res) => {
     mysqlPool = mysql.createPool(mysqlConfig);
   }
 
-  username = req.query.username || req.body.username || "World";
-  password = req.query.passwordHash || req.body.passwordHash || "";
-  console.log(password);
+  username = req.query.username || req.body.username || "USERNAME";
+  password = req.query.passwordHash || req.body.passwordHash || "PASSWORD_HASH";
 
-  mysqlPool.query(
-    `SELECT 
-    CASE
-      WHEN COUNT(*) = 0 THEN 0
-      WHEN COUNT(*) = 1 THEN 1
-      WHEN COUNT(*) > 1 THEN -1
-    END as logged
-    FROM clement_le_bg.the_first_table WHERE name="${username}"
-    `,
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send(err);
-      } else {
-        res.send(`{"logged":${results[0]["logged"]}}`);
-      }
+  let allResults = {};
+  let numberResolved = 0;
+
+  const queries = [
+    "SELECT * from `bitcoin-data`.`daily-btc-value`;",
+    "SELECT * from `bitcoin-data`.`daily-trend-bitcoin`;"
+  ];
+
+  const targetNumber = queries.length;
+
+  sendTrigger = () => {
+    console.log("sendTrigger numberResolved", numberResolved);
+    console.log(allResults);
+    if (numberResolved === targetNumber) {
+      console.log("Sending DEFINITELY");
+      res.send(allResults);
     }
-  );
+  };
+
+  for (let i = 0; i < targetNumber; i++) {
+    const local_query = queries[i];
+    mysqlPool.query(local_query, (err, results) => {
+      err && console.log(err);
+      allResults["query" + i] = { query: local_query, results: results };
+      numberResolved += 1;
+      sendTrigger();
+    });
+  }
 
   // Close any SQL resources that were declared inside this function.
   // Keep any declared in global scope (e.g. mysqlPool) for later reuse.
