@@ -2,11 +2,9 @@
   "name": "hello_world_database",
   "version": "0.0.1",
   "dependencies": {
-    "mysql": "2.17.1",
-    "password-hash": "1.2.2"
+    "mysql": "2.17.1"
   },
   "scripts": {
-    "start": "functions-framework --target=mysqlFetchData",
-    "start2": "functions-framework --target=mysqlFetchData"
+    "start": "functions-framework --target=mysqlFetchData"
   }
 }

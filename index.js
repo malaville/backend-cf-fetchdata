@@ -1,5 +1,4 @@
 const mysql = require("mysql");
-var passwordHash = require("password-hash");
 /**
  * TODO(developer): specify SQL connection details
  */
@@ -60,19 +59,4 @@ exports.mysqlFetchData = (req, res) => {
       sendTrigger();
     });
   }
-
-  // Close any SQL resources that were declared inside this function.
-  // Keep any declared in global scope (e.g. mysqlPool) for later reuse.
-};
-
-/**
- * HTTP Cloud Function.
- *
- * @param {Object} req Cloud Function request context.
- *                     More info: https://expressjs.com/en/api.html#req
- * @param {Object} res Cloud Function response context.
- *                     More info: https://expressjs.com/en/api.html#res
- */
-exports.helloHttp = (req, res) => {
-  res.send(`Hello ${escapeHtml(req.query.name || req.body.name || "World")}!`);
 };
